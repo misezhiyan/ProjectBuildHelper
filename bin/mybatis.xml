@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<!-- 注册属性文件 -->
+	<properties resource="database.properties" />
+	<!-- 配置mybatis运行环境 -->
+	<environments default="development">
+		<!-- 配置开发环境 -->
+		<environment id="development">
+			<!-- jdbc事务管理器 -->
+			<transactionManager type="JDBC" />
+			<!-- POOLED PooledDataSourceFactory 使用连接池的数据源 -->
+			<!-- UNPOOLED UnpooledDataSourceFactory 不使用连接池的数据源 -->
+			<!-- JNDI JndiDataSourceFactory 使用JNDI实现的数据源 -->
+			<!-- type=”POOLED” MyBatis会创建PooledDataSource实例 type=”UNPOOLED” MyBatis会创建UnpooledDataSource实例type=”JNDI” MyBatis会从JNDI服务上查找DataSource实例 -->
+			<dataSource type="POOLED">
+				<property name="driver" value="${Driver}" />
+				<property name="url" value="${Url}" />
+				<property name="username" value="${Username}" />
+				<property name="password" value="${Password}" />
+			</dataSource>
+		</environment>
+		<!-- 可以多个环境切换。配置上线环境 -->
+		<environment id="online">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${Driver}" />
+				<property name="url" value="${Url}" />
+				<property name="username" value="${Username}" />
+				<property name="password" value="${Password}" />
+			</dataSource>
+		</environment>
+
+	</environments>
+
+	<!-- 映射器 -->
+	<mappers>
+		<!-- 注册映射文件 -->
+		<mapper resource="po/mapper/tableConstructMapper.xml" />
+	</mappers>
+
+</configuration>
