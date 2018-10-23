@@ -12,4 +12,9 @@ public class StringUtil {
 		return null == mybatisConfigPath || "".equals(mybatisConfigPath);
 	}
 
+	public static boolean isBlankEmpty(char charAt) {
+
+		return charAt == ' ' || charAt == '	';
+	}
+
 }

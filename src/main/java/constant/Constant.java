@@ -15,5 +15,9 @@ public class Constant {
 	public static String BUSINESSCONFIGREALPATH;
 	// 输出文件基本路径
 	public static String RESULTFILEPATH;
+	// 工程名称
+	public static String PROJECTNAME;
+	// 工程文件基础路径
+	public static String BASEPATH;
 
 }

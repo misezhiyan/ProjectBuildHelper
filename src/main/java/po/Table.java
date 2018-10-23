@@ -13,10 +13,6 @@ public class Table {
 	private String TABLE_COMMENT;
 	private List<Field> fieldList;
 
-	public String getTABLE_NAME() {
-		return TABLE_NAME;
-	}
-
 	public void setTABLE_NAME(String tABLE_NAME) {
 		TABLE_NAME = tABLE_NAME;
 	}
@@ -37,4 +33,11 @@ public class Table {
 		this.fieldList = fieldList;
 	}
 
+	/***************************
+	 * 下方业务方法
+	 *************************/
+
+	public String getTABLE_NAME() {
+		return this.TABLE_NAME.substring(0, 1).toUpperCase() + this.TABLE_NAME.substring(1);
+	}
 }

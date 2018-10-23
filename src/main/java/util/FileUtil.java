@@ -68,7 +68,12 @@ public class FileUtil {
 
 		if (StringUtil.isEmpty(filePath) || StringUtil.isEmpty(fileFullName))
 			throw new Exception("can not be null");
-		String fileRealPath = filePath.trim() + fileFullName.trim();
+
+		filePath = filePath.trim();
+		if (!filePath.endsWith("/") && !filePath.endsWith("\\"))
+			filePath += "/";
+
+		String fileRealPath = filePath + fileFullName.trim();
 		File file_package = new File(filePath);
 		if (!file_package.exists())
 			file_package.mkdirs();

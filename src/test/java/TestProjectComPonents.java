@@ -2,13 +2,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import constant.Constant;
 import po.Field;
 import po.Table;
+import po.Tmpl_mapper;
 import service.ProjectComPonentsService;
 import util.FileUtil;
 import util.StringUtil;
@@ -22,11 +22,10 @@ public class TestProjectComPonents {
 
 	private static ProjectComPonentsService projectComPonentsService = new ProjectComPonentsService();
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		// 获取表结构
-		Table table = projectComPonentsService.tableConstruct("sentense");
-		System.out.println(table);
+		Table table = projectComPonentsService.tableConstruct("initialfrom");
 
 		// 读取配置文件
 		initConfig();
@@ -48,70 +47,25 @@ public class TestProjectComPonents {
 		InputStreamReader inStream_pathConfig = new InputStreamReader(new FileInputStream(pathConfig), "UTF-8");
 		properties_pathConfig.load(inStream_pathConfig);
 		Constant.RESULTFILEPATH = properties_pathConfig.getProperty("RESULTFILEPATH");
+		Constant.PROJECTNAME = properties_pathConfig.getProperty("PROJECTNAME");
+		Constant.BASEPATH = properties_pathConfig.getProperty("BASEPATH");
 	}
 
 	// 读取配置文件 , 创建目标文件
-	private static void createFiles(Table table) throws IOException {
+	private static void createFiles(Table table) throws Exception {
 
 		// po 配置
-		String poConfigPath = Constant.BUSINESSCONFIGREALPATH + "/poConfig.properties";
-		Properties properties_poConfig = new Properties();
-		InputStreamReader inStream_poConfig = new InputStreamReader(new FileInputStream(poConfigPath), "UTF-8");
-		properties_poConfig.load(inStream_poConfig);
-		// mapper 配置
-		String mapperConfigPath = Constant.BUSINESSCONFIGREALPATH + "/mapperConfig.properties";
-		Properties properties_mapperConfig = new Properties();
-		InputStreamReader inStream_mapperConfig = new InputStreamReader(new FileInputStream(mapperConfigPath), "UTF-8");
-		properties_mapperConfig.load(inStream_mapperConfig);
-		// dao 配置
-		String daoConfigPath = Constant.BUSINESSCONFIGREALPATH + "/daoConfig.properties";
-		Properties properties_daoConfig = new Properties();
-		InputStreamReader inStream_daoConfig = new InputStreamReader(new FileInputStream(daoConfigPath), "UTF-8");
-		properties_daoConfig.load(inStream_daoConfig);
 		// 创建 po
-		createPo(properties_poConfig, table);
+		// Tmpl_po po = new Tmpl_po(table);
+
+		// mapper 配置
 		// 创建 mapper
-		createMapper(properties_mapperConfig, table);
-		// 创建 dao
-		createDao(properties_daoConfig, table);
+		Tmpl_mapper mapper = new Tmpl_mapper(table);
 
-	}
+		// dao 配置
+		// // 创建 dao
+		// createDao(properties_daoConfig, table);
 
-	private static void createMapper(Properties properties, Table table) {
-
-		String mapperContent = getMapperContent(properties, table);
-		String pkg = properties.getProperty("package");
-
-		String mapperPath = pkg + "/" + table.getTABLE_NAME() + "Mapper.xml";
-		if (!StringUtil.isEmpty(Constant.RESULTFILEPATH))
-			mapperPath = (StringUtil.isEmpty(Constant.RESULTFILEPATH) ? Constant.RESULTFILEPATH : "resultData") + "/" + mapperPath;
-		try {
-			FileUtil.writeIntoFileWithDir(mapperPath, mapperContent);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static String getMapperContent(Properties properties, Table table) {
-
-		String TABLE_NAME = table.getTABLE_NAME();
-		// String TABLE_COMMENT = table.getTABLE_COMMENT();
-		List<Field> fieldList = table.getFieldList();
-
-		String pkg = properties.getProperty("package");
-
-		String spaceLine = "";// 行前空格
-		String lineChange = "\r\n";// 换行符
-		String mapperContent = "";
-
-		mapperContent += "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + lineChange;
-		mapperContent += "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">" + lineChange;
-		mapperContent += lineChange;
-		mapperContent += "<mapper namespace=\"" + pkg + "." + TABLE_NAME + "Mapper\">" + lineChange;
-		mapperContent += lineChange;
-		mapperContent += "</mapper>" + lineChange;
-
-		return mapperContent;
 	}
 
 	private static void createDao(Properties properties, Table table) {
@@ -142,85 +96,6 @@ public class TestProjectComPonents {
 		String daoContent = "";
 
 		return null;
-	}
-
-	private static void createPo(Properties properties, Table table) {
-
-		String poContent = getPoContent(properties, table);
-		String pkg = properties.getProperty("package");
-
-		String poPath = pkg + "/" + table.getTABLE_NAME() + ".java";
-		if (!StringUtil.isEmpty(Constant.RESULTFILEPATH))
-			poPath = Constant.RESULTFILEPATH + "/" + poPath;
-		try {
-			FileUtil.writeIntoFileWithDir(poPath, poContent);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static String getPoContent(Properties properties, Table table) {
-		String TABLE_NAME = table.getTABLE_NAME();
-		String TABLE_COMMENT = table.getTABLE_COMMENT();
-		List<Field> fieldList = table.getFieldList();
-
-		String pkg = properties.getProperty("package");
-		// String discription = properties.getProperty("discription");
-		String author = properties.getProperty("author");
-
-		String spaceLine = "";// 行前空格
-		String lineChange = "\r\n";// 换行符
-		String poContent = "";
-		// 所在包
-		poContent += "package " + pkg + ";" + lineChange;
-		poContent += lineChange;
-		// 引用类
-		poContent += "import " + ";";
-		poContent += lineChange;
-		// 类注释
-		poContent += "/**" + lineChange + " * @discription " + TABLE_COMMENT + lineChange + " * @author " + author + lineChange + " * @date " + new Date() + lineChange + " */;" + lineChange;
-		// 类声明开始
-		poContent += "public class " + TABLE_NAME + " {";
-		poContent += lineChange;
-		spaceLine += "	";
-
-		// 属性
-		String fieldArea = "";
-		// 方法区
-		String methodArea = "";
-		for (Field field : fieldList) {
-
-			// 属性名称
-			String COLUMN_NAME = field.getCOLUMN_NAME();
-			// 数据类型
-			String DATA_TYPE = field.getDATA_TYPE();// int, varchar
-			// 数据长度
-			Integer CHARACTER_MAXIMUM_LENGTH = field.getCHARACTER_MAXIMUM_LENGTH();
-			// 整数位数 - 1
-			Integer NUMERIC_PRECISION = field.getNUMERIC_PRECISION();
-			// 小数位数
-			Integer NUMERIC_SCALE = field.getNUMERIC_SCALE();
-			// 字段关联键
-			String COLUMN_KEY = field.getCOLUMN_KEY();
-			// 自动增长
-			String EXTRA = field.getEXTRA();
-			// 字段注释
-			String COLUMN_COMMENT = field.getCOLUMN_COMMENT();
-
-			// 字段区
-			String oneFieldArea = fieldsArea(spaceLine, lineChange, COLUMN_COMMENT, DATA_TYPE, COLUMN_NAME);
-			fieldArea += oneFieldArea;
-			// 方法区
-			String oneMethodArea = methodArea(spaceLine, lineChange, COLUMN_COMMENT, DATA_TYPE, COLUMN_NAME);
-			methodArea += oneMethodArea;
-		}
-
-		poContent += fieldArea;
-		poContent += methodArea;
-
-		// 类声明结束
-		poContent += "}";
-		return poContent;
 	}
 
 	private static String methodArea(String spaceLine, String lineChange, String COLUMN_COMMENT, String DATA_TYPE, String COLUMN_NAME) {
