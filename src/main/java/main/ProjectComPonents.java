@@ -1,3 +1,5 @@
+package main;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,7 +21,7 @@ import service.ProjectComPonentsService;
  * @author kimmy
  * @date 2018年9月29日 下午3:18:09
  */
-public class TestProjectComPonents {
+public class ProjectComPonents {
 
 	private static PoCreateManager poManager;
 	private static MapperCreateManager mapperManager;
@@ -87,7 +89,7 @@ public class TestProjectComPonents {
 
 		// 创建 dao
 		daoManager.matchTable(table);
-		 daoManager.createFile();
+		daoManager.createFile();
 		daoManager.createImplFile();
 
 	}

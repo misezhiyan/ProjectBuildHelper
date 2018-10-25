@@ -71,7 +71,7 @@ public class DaoCreateManager extends CreateManager {
 		tmplTmp = tmplTmp.replace("${keyFieldType}", keyFieldType);
 
 		// 写入文件
-		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, TABLE_NAME + "Dao", "java", tmplTmp);
+		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, CLASS_NAME + "Dao", "java", tmplTmp);
 	}
 
 	public void createImplFile() throws Exception {
@@ -101,7 +101,7 @@ public class DaoCreateManager extends CreateManager {
 		tmplImplTmp = tmplImplTmp.replace("${keyFieldType}", keyFieldType);
 
 		// 写入文件
-		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, TABLE_NAME + "DaoImpl", "java", tmplImplTmp);
+		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, CLASS_NAME + "DaoImpl", "java", tmplImplTmp);
 
 	}
 
