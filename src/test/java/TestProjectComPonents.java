@@ -87,7 +87,8 @@ public class TestProjectComPonents {
 
 		// 创建 dao
 		daoManager.matchTable(table);
-		daoManager.createFile();
+		// daoManager.createFile();
+		daoManager.createImplFile();
 
 	}
 }

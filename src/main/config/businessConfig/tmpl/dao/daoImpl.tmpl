@@ -2,33 +2,49 @@ package ${package};
 
 ${import}
 
-public class ${tableName}DaoImpl implements ${tableName}Dao {
+public class ${className}DaoImpl implements ${className}Dao {
 
-	${baseDao}
+	private QueryDao queryDao;
+	private UpdateDao updateDao;
 
+	public QueryDao getQueryDao() {
+		return queryDao;
+	}
 
-	@Override
-	public List<String> translateSentense(String sentense) {
+	public void setQueryDao(QueryDao queryDao) {
+		this.queryDao = queryDao;
+	}
 
-		return queryDao.selectList("com.translate.po.mapper.sentenseMapper.translateSentense", sentense);
+	public UpdateDao getUpdateDao() {
+		return updateDao;
+	}
+
+	public void setUpdateDao(UpdateDao updateDao) {
+		this.updateDao = updateDao;
 	}
 
 	@Override
-	public int isOld(String wordT) {
+	public ${className} selectBy${keyFieldName}(${keyFieldType} ${keyFieldName}) {
+	
+		return queryDao.selectOne("${mapperpackage}.${tableName}Mapper.selectBy${keyFieldName}", ${keyFieldName});
+	}
+	
+	@Override
+	public List<${className}> selectList(${className} ${tableName}) {
 
-		return queryDao.selectOne("com.translate.po.mapper.sentenseMapper.isOld", wordT);
+		return queryDao.selectList("${mapperpackage}.${tableName}Mapper.selectList", ${tableName});
 	}
 
 	@Override
-	public int saveTranslateWord(Map<String, String> params_saveTranslateWord) {
+	public int insert(${className} ${tableName}) {
 
-		return updateDao.insert("com.translate.po.mapper.sentenseMapper.saveTranslateWord", params_saveTranslateWord);
+		return updateDao.insert("${mapperpackage}.${tableName}Mapper.insert", ${tableName});
 	}
 
 	@Override
-	public List<String> translate(String wordT) {
+	public int updateBy${keyFieldName}(${className} ${tableName}) {
 
-		return queryDao.selectList("com.translate.po.mapper.sentenseMapper.translate", wordT);
+		return updateDao.insert("${mapperpackage}.${tableName}Mapper.updateBy${keyFieldName}", ${tableName});
 	}
-
+	
 }

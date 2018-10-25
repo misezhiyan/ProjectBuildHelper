@@ -87,26 +87,43 @@ public class CreateManager {
 		return getTmplPath("DAO");
 	}
 
+	// daoImpl 模板路径
+	String getDaoTmplImplPath() {
+
+		return getTmplImplPath("DAO");
+	}
+
 	String getTmplPath(String type) {
 
-		Properties config = null;
-		switch (type) {
-		case "PO":
-			config = poConfig;
-			break;
-		case "MAPPER":
-			config = mapperConfig;
-			break;
-		case "DAO":
-			config = daoConfig;
-			break;
-		}
+		Properties config = matchConfig(type);
 		String tmplpackage = config.getProperty("tmplpackage");
 		String tmplfile = config.getProperty("tmplfile");
 
 		String tmplPath = matchPath(tmplfile, Constant.BUSINESSCONFIGREALPATH, tmplpackage);
 
 		return tmplPath;
+	}
+
+	String getTmplImplPath(String type) {
+		Properties config = matchConfig(type);
+		String tmplimplpackage = config.getProperty("tmplimplpackage");
+		String tmplimplfile = config.getProperty("tmplimplfile");
+
+		String tmplImplPath = matchPath(tmplimplfile, Constant.BUSINESSCONFIGREALPATH, tmplimplpackage);
+		return tmplImplPath;
+	}
+
+	Properties matchConfig(String type) {
+
+		switch (type) {
+		case "PO":
+			return poConfig;
+		case "MAPPER":
+			return mapperConfig;
+		case "DAO":
+			return daoConfig;
+		}
+		return null;
 	}
 
 	// 拼接路径
@@ -167,25 +184,34 @@ public class CreateManager {
 	// 获取po类路径
 	String getPoRelativePath() {
 
-		return matchProjectRelativePath(poConfig);
+		String pkg = poConfig.getProperty("package");
+		return matchProjectRelativePath(pkg);
 	}
 
 	// 获取mapper类路径
 	String getMapperRelativePath() {
 
-		return matchProjectRelativePath(mapperConfig);
+		String pkg = mapperConfig.getProperty("package");
+		return matchProjectRelativePath(pkg);
 	}
 
 	// 获取dao类路径
 	String getDaoRelativePath() {
 
-		return matchProjectRelativePath(daoConfig);
+		String pkg = daoConfig.getProperty("package");
+		return matchProjectRelativePath(pkg);
+	}
+
+	// 获取daoImpl类路径
+	String getDaoImplRelativePath() {
+
+		String pkg = daoConfig.getProperty("implpackage");
+		return matchProjectRelativePath(pkg);
 	}
 
 	// 工程相对路径
-	protected String matchProjectRelativePath(Properties config) {
+	protected String matchProjectRelativePath(String pkg) {
 
-		String pkg = config.getProperty("package");
 		String path = Constant.BASEPATH + "/" + pkg;
 		path = matchLinePath(path);
 		return path;

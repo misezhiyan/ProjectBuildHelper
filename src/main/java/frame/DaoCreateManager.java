@@ -17,13 +17,17 @@ import util.FileUtil;
 public class DaoCreateManager extends CreateManager {
 
 	private String tmpl;
+	private String tmplImpl;
 	private String tmplTmp;
+	private String tmplImplTmp;
 
 	public DaoCreateManager() throws Exception {
 		super();
 		if (null == tmpl) {
 			String daoTmplPath = getDaoTmplPath();
 			tmpl = FileUtil.fileReadToString(daoTmplPath);
+			String daoTmplImplPath = getDaoTmplImplPath();
+			tmplImpl = FileUtil.fileReadToString(daoTmplImplPath);
 		}
 	}
 
@@ -32,12 +36,15 @@ public class DaoCreateManager extends CreateManager {
 		if (null == tmpl) {
 			String daoTmplPath = getDaoTmplPath();
 			tmpl = FileUtil.fileReadToString(daoTmplPath);
+			String daoTmplImplPath = getDaoTmplImplPath();
+			tmplImpl = FileUtil.fileReadToString(daoTmplImplPath);
 		}
 	}
 
 	public void matchTable(Table table) {
 		super.matchTable(table);
 		tmplTmp = tmpl;
+		tmplImplTmp = tmplImpl;
 	}
 
 	public void createFile() throws Exception {
@@ -51,7 +58,7 @@ public class DaoCreateManager extends CreateManager {
 		String pkg = getDaoRelativePath();
 		tmplTmp = tmplTmp.replace("${package}", matchPointPath(pkg));
 
-		Set<String> importList = importList(table);
+		Set<String> importList = daoImportList(table);
 		String importArea = formmatImportArea(importList);
 		tmplTmp = tmplTmp.replace("${import}", importArea);
 
@@ -67,6 +74,37 @@ public class DaoCreateManager extends CreateManager {
 		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, TABLE_NAME + "Dao", "java", tmplTmp);
 	}
 
+	public void createImplFile() throws Exception {
+
+		String TABLE_NAME = table.getTABLE_NAME();
+		tmplImplTmp = tmplImplTmp.replace("${tableName}", TABLE_NAME);
+
+		String CLASS_NAME = getCLASS_NAME();
+		tmplImplTmp = tmplImplTmp.replace("${className}", CLASS_NAME);
+
+		String pkg = getDaoImplRelativePath();
+		tmplImplTmp = tmplImplTmp.replace("${package}", matchPointPath(pkg));
+
+		String mapperpackage = getMapperRelativePath();
+		tmplImplTmp = tmplImplTmp.replace("${mapperpackage}", matchPointPath(mapperpackage));
+
+		Set<String> importList = daoImplImportList(table);
+		String importArea = formmatImportArea(importList);
+		tmplImplTmp = tmplImplTmp.replace("${import}", importArea);
+
+		// 主键名称
+		Field keyField = priKey(table);
+		String keyFieldName = keyField.getCOLUMN_NAME();
+		String keyFieldType = keyField.getDATA_TYPE();
+		keyFieldType = matchJAVAType(keyFieldType);
+		tmplImplTmp = tmplImplTmp.replace("${keyFieldName}", keyFieldName);
+		tmplImplTmp = tmplImplTmp.replace("${keyFieldType}", keyFieldType);
+
+		// 写入文件
+		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, TABLE_NAME + "DaoImpl", "java", tmplImplTmp);
+
+	}
+
 	private Field priKey(Table table) {
 
 		List<Field> fieldList = table.getFieldList();
@@ -79,18 +117,39 @@ public class DaoCreateManager extends CreateManager {
 		return null;
 	}
 
+	private Set<String> daoImportList(Table table) {
+		Set<String> importList = importList(table);
+		// 固定引入
+		String listImport = "import java.util.List;";
+		importList.add(listImport);
+		return importList;
+	}
+
+	private Set<String> daoImplImportList(Table table) {
+		Set<String> importList = importList(table);
+
+		// 固定引入
+		String listImport = "import java.util.List;";
+		importList.add(listImport);
+		String daoImport = "import " + matchPointPath(Constant.BASEPATH + "." + daoConfig.getProperty("package")) + "." + getCLASS_NAME() + "Dao;";
+		importList.add(daoImport);
+		String queryDaoImport = "import " + matchPointPath(Constant.BASEPATH + "." + daoConfig.getProperty("basedaopackage")) + "." + "QueryDao;";
+		importList.add(queryDaoImport);
+		String updateDaoImport = "import " + matchPointPath(Constant.BASEPATH + "." + daoConfig.getProperty("basedaopackage")) + "." + "UpdateDao;";
+		importList.add(updateDaoImport);
+
+		return importList;
+	}
+
 	private Set<String> importList(Table table) {
 
 		Set<String> importList = new HashSet<String>();
 
-		// 固定引入
-		String listImport = "import java.util.List;";
 		// 表类引入
 		// String TABLE_NAME = table.getTABLE_NAME();
 		String poPath = getPoRelativePath();
 		String tableImport = "import " + matchPointPath(poPath) + "." + getCLASS_NAME() + ";";
 
-		importList.add(listImport);
 		importList.add(tableImport);
 
 		return importList;
