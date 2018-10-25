@@ -1,5 +1,8 @@
 package service;
 
+import java.util.List;
+import java.util.Map;
+
 import dao.ProjectComPonentsDao;
 import po.Table;
 
@@ -12,8 +15,9 @@ public class ProjectComPonentsService {
 
 	private ProjectComPonentsDao projectComPonentsDao = new ProjectComPonentsDao();
 
-	public Table tableConstruct(String tableName) {
+	public List<Table> tableConstruct(Map<String, String> params_tableConstruct) {
 
-		return projectComPonentsDao.tableConstruct(tableName);
+		return projectComPonentsDao.tableConstruct(params_tableConstruct);
 	}
+
 }

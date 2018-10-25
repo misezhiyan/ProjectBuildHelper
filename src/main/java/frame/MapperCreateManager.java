@@ -1,11 +1,10 @@
-package po;
+package frame;
 
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Properties;
 
 import constant.Constant;
+import po.Field;
+import po.Table;
 import util.FileUtil;
 
 /**
@@ -13,38 +12,45 @@ import util.FileUtil;
  * @author kimmy
  * @date 2018年10月8日 上午10:28:34
  */
-public class Tmpl_mapper {
+public class MapperCreateManager extends CreateManager {
 
 	private String tmpl;
-	private String mapperConfigPath = Constant.BUSINESSCONFIGREALPATH + "/mapperConfig.properties";
-	private String mapperTmplPath = Constant.BUSINESSCONFIGREALPATH + "/tmpl/mapper.tmpl";
+	private String tmplTmp;
 
-	private Properties config;
-
-	public Tmpl_mapper() throws Exception {
-
-		config = new Properties();
-		InputStreamReader inStream = new InputStreamReader(new FileInputStream(mapperConfigPath), "UTF-8");
-		config.load(inStream);
-
-		tmpl = FileUtil.fileReadToString(mapperTmplPath);
+	public MapperCreateManager() throws Exception {
+		super();
+		if (null == tmpl) {
+			String mapperTmplPath = getMapperTmplPath();
+			tmpl = FileUtil.fileReadToString(mapperTmplPath);
+		}
 	}
 
-	public Tmpl_mapper(Table table) throws Exception {
-		this();
+	public MapperCreateManager(Table table) throws Exception {
+		super(table);
+		if (null == tmpl) {
+			String mapperTmplPath = getMapperTmplPath();
+			tmpl = FileUtil.fileReadToString(mapperTmplPath);
+		}
+	}
+
+	public void matchTable(Table table) {
+		super.matchTable(table);
+		tmplTmp = tmpl;
+	}
+
+	public void createFile() throws Exception {
 
 		String TABLE_NAME = table.getTABLE_NAME();
-		tmpl = tmpl.replace("${tableName}", TABLE_NAME);
+		tmplTmp = tmplTmp.replace("${tableName}", TABLE_NAME);
 
-		String pkg = config.getProperty("package");
-		tmpl = tmpl.replace("${package}", pkg);
+		String pkg = getMapperRelativePath();
+		tmplTmp = tmplTmp.replace("${package}", matchPointPath(pkg));
 
 		String mapperContent = mapperContent(table);
-		tmpl = tmpl.replace("${mapperContent}", mapperContent);
+		tmplTmp = tmplTmp.replace("${mapperContent}", mapperContent);
 
-		String projectBasePath = Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + Constant.BASEPATH;
 		// 写入文件
-		FileUtil.writeIntoFile(projectBasePath + "\\" + pkg.replace(".", "\\"), TABLE_NAME + "Mapper", "xml", tmpl);
+		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + matchLinePath(pkg), TABLE_NAME + "Mapper", "xml", tmplTmp);
 	}
 
 	private String mapperContent(Table table) {
@@ -69,7 +75,7 @@ public class Tmpl_mapper {
 
 		String insertArea = "";
 
-		String pkg = config.getProperty("package");
+		String pkg = getMapperRelativePath();
 		insertArea += space + "<insert id=\"save\" parameterType=\"" + pkg + "." + TABLE_NAME + "\">" + changeLine;
 		insertArea += space + "INSERT INTO " + TABLE_NAME + " (" + changeLine;
 
@@ -78,7 +84,7 @@ public class Tmpl_mapper {
 		for (Field field : fieldList) {
 			String COLUMN_NAME = field.getCOLUMN_NAME();
 			String DATA_TYPE = field.getDATA_TYPE();
-			String dbType = dbType(DATA_TYPE);
+			String dbType = matchMapperType(DATA_TYPE);
 			filedsArea += space + space + COLUMN_NAME + "," + changeLine;
 			valuesArea += space + space + "#{" + COLUMN_NAME + ":" + dbType + "}" + "," + changeLine;
 		}
@@ -93,7 +99,7 @@ public class Tmpl_mapper {
 		return insertArea;
 	}
 
-	private String dbType(String DATA_TYPE) {
+	private String matchMapperType(String DATA_TYPE) {
 
 		String result = "";
 		switch (DATA_TYPE) {
@@ -110,4 +116,5 @@ public class Tmpl_mapper {
 
 		return result;
 	}
+
 }

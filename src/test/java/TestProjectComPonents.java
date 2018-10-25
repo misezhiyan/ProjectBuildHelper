@@ -2,16 +2,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import constant.Constant;
-import po.Field;
+import frame.DaoCreateManager;
+import frame.MapperCreateManager;
+import frame.PoCreateManager;
 import po.Table;
-import po.Tmpl_mapper;
 import service.ProjectComPonentsService;
-import util.FileUtil;
-import util.StringUtil;
 
 /**
  * @discription 创建 Dao, Mapper, Po
@@ -20,17 +21,39 @@ import util.StringUtil;
  */
 public class TestProjectComPonents {
 
+	private static PoCreateManager poManager;
+	private static MapperCreateManager mapperManager;
+	private static DaoCreateManager daoManager;
+
 	private static ProjectComPonentsService projectComPonentsService = new ProjectComPonentsService();
 
 	public static void main(String[] args) throws Exception {
 
-		// 获取表结构
-		Table table = projectComPonentsService.tableConstruct("initialfrom");
+		// 初始化
+		init();
 
-		// 读取配置文件
-		initConfig();
+		// // 获取表结构
+		Map<String, String> params_tableConstruct = new HashMap<String, String>();
+		// params_tableConstruct.put("ALL", null);
+		// params_tableConstruct.put("tableName", "initialfrom");
+		params_tableConstruct.put("ALL", "true");
+		List<Table> tableList = projectComPonentsService.tableConstruct(params_tableConstruct);
+
 		// 创建目标文件
-		createFiles(table);
+		for (Table table : tableList)
+			createFiles(table);
+	}
+
+	private static void init() throws Exception {
+
+		// 初始化配置
+		initConfig();
+
+		// 管理器初始化
+		poManager = new PoCreateManager();
+		mapperManager = new MapperCreateManager();
+		daoManager = new DaoCreateManager();
+
 	}
 
 	private static void initConfig() throws IOException {
@@ -54,103 +77,17 @@ public class TestProjectComPonents {
 	// 读取配置文件 , 创建目标文件
 	private static void createFiles(Table table) throws Exception {
 
-		// po 配置
 		// 创建 po
-		// Tmpl_po po = new Tmpl_po(table);
+		poManager.matchTable(table);
+		poManager.createFile();
 
-		// mapper 配置
 		// 创建 mapper
-		Tmpl_mapper mapper = new Tmpl_mapper(table);
+		mapperManager.matchTable(table);
+		mapperManager.createFile();
 
-		// dao 配置
-		// // 创建 dao
-		// createDao(properties_daoConfig, table);
+		// 创建 dao
+		daoManager.matchTable(table);
+		daoManager.createFile();
 
-	}
-
-	private static void createDao(Properties properties, Table table) {
-
-		String daoContent = getDaoContent(properties, table);
-		String pkg = properties.getProperty("package");
-
-		String daoPath = pkg + "/" + table.getTABLE_NAME() + "Dao.java";
-		if (!StringUtil.isEmpty(Constant.RESULTFILEPATH))
-			daoPath = Constant.RESULTFILEPATH + "/" + daoPath;
-		try {
-			FileUtil.writeIntoFileWithDir(daoPath, daoContent);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static String getDaoContent(Properties properties, Table table) {
-
-		String TABLE_NAME = table.getTABLE_NAME();
-		// String TABLE_COMMENT = table.getTABLE_COMMENT();
-		List<Field> fieldList = table.getFieldList();
-
-		String pkg = properties.getProperty("package");
-
-		String spaceLine = "";// 行前空格
-		String lineChange = "\r\n";// 换行符
-		String daoContent = "";
-
-		return null;
-	}
-
-	private static String methodArea(String spaceLine, String lineChange, String COLUMN_COMMENT, String DATA_TYPE, String COLUMN_NAME) {
-
-		String type = "";
-		switch (DATA_TYPE) {
-		case "int":
-			type = "Integer";
-			break;
-		case "varchar":
-			type = "String";
-			break;
-		}
-
-		String methodName = COLUMN_NAME.substring(0, 1).toUpperCase() + COLUMN_NAME.substring(1).toLowerCase();
-		// get方法
-		String getMethodContent = "";
-		String getMethodName = "get" + methodName;
-		getMethodContent += spaceLine + "public " + type + " " + getMethodName + "() {" + lineChange;
-		spaceLine += "	";
-		getMethodContent += spaceLine + "return " + COLUMN_NAME + lineChange + ";";
-		getMethodContent += spaceLine + "}" + lineChange;
-		spaceLine = spaceLine.substring(1);
-		getMethodContent += lineChange;
-		// set方法
-		String setMethodContent = "";
-		String setMethodName = "set" + methodName;
-		setMethodContent += spaceLine + "public " + type + " " + setMethodName + "(" + type + " " + COLUMN_NAME + ") {";
-		spaceLine += "	";
-		setMethodContent += spaceLine + COLUMN_NAME + " = " + COLUMN_NAME + ";";
-		setMethodContent += spaceLine + "}";
-		spaceLine = spaceLine.substring(1);
-		setMethodContent += lineChange;
-
-		return getMethodContent + setMethodContent;
-	}
-
-	private static String fieldsArea(String spaceLine, String lineChange, String COLUMN_COMMENT, String DATA_TYPE, String COLUMN_NAME) {
-
-		String type = "";
-		switch (DATA_TYPE) {
-		case "int":
-			type = "Integer";
-			break;
-		case "varchar":
-			type = "String";
-			break;
-		}
-
-		// 备注行
-		String commentLine = spaceLine + "// " + COLUMN_COMMENT + lineChange;
-		// 字段行
-		String fieldContent = "";
-		fieldContent += spaceLine + "private " + type + " " + COLUMN_NAME + lineChange;
-
-		return commentLine + fieldContent;
 	}
 }

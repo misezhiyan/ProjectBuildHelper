@@ -1,14 +1,14 @@
-package po;
+package frame;
 
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
+import java.util.Set;
 
 import constant.Constant;
+import po.Field;
+import po.Table;
 import util.FileUtil;
 
 /**
@@ -16,76 +16,96 @@ import util.FileUtil;
  * @author kimmy
  * @date 2018年10月8日 上午10:28:34
  */
-public class Tmpl_po {
+public class PoCreateManager extends CreateManager {
 	private String tmpl;
-	private String poConfigPath = Constant.BUSINESSCONFIGREALPATH + "/poConfig.properties";
-	private String poTmplPath = Constant.BUSINESSCONFIGREALPATH + "/tmpl/po.tmpl";
+	private String tmplTmp;
 
-	private Properties config;
-
-	// 引用
-	private List<String> importList;
-
-	public Tmpl_po() throws Exception {
-
-		config = new Properties();
-		InputStreamReader inStream = new InputStreamReader(new FileInputStream(poConfigPath), "UTF-8");
-		config.load(inStream);
-
-		tmpl = FileUtil.fileReadToString(poTmplPath);
-
+	public PoCreateManager() throws Exception {
+		super();
+		if (null == tmpl) {
+			String poTmplPath = getPoTmplPath();
+			tmpl = FileUtil.fileReadToString(poTmplPath);
+		}
 	}
 
-	public Tmpl_po(Table table) throws Exception {
-		this();
+	public PoCreateManager(Table table) throws Exception {
+		super(table);
+		if (null == tmpl) {
+			String poTmplPath = getPoTmplPath();
+			tmpl = FileUtil.fileReadToString(poTmplPath);
+		}
+	}
+
+	public void matchTable(Table table) {
+		super.matchTable(table);
+		tmplTmp = tmpl;
+	}
+
+	public void createFile() throws Exception {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-		tmpl = tmpl.replace("${author}", "kimmy");
+		String author = poConfig.getProperty("author");
+		tmplTmp = tmplTmp.replace("${author}", author);
 
 		String TABLE_COMMENT = table.getTABLE_COMMENT();
-		String TABLE_NAME = table.getTABLE_NAME();
+		tmplTmp = tmplTmp.replace("${discription}", TABLE_COMMENT);
 
-		tmpl = tmpl.replace("${discription}", TABLE_COMMENT);
-		tmpl = tmpl.replace("${date}", sdf.format(new Date()));
-		tmpl = tmpl.replace("${tableName}", TABLE_NAME);
+		// String TABLE_NAME = table.getTABLE_NAME();
+		String CLASS_NAME = getCLASS_NAME();
+		tmplTmp = tmplTmp.replace("${className}", CLASS_NAME);
+
+		tmplTmp = tmplTmp.replace("${date}", sdf.format(new Date()));
 
 		List<Field> fieldList = table.getFieldList();
 		String filedArea = filedArea(fieldList);
 
-		tmpl = tmpl.replace("${filedArea}", filedArea);
+		tmplTmp = tmplTmp.replace("${filedArea}", filedArea);
 
-		String importArea = importArea();
-		tmpl = tmpl.replace("${import}", importArea);
+		Set<String> importList = importList(table);
+		String importArea = formmatImportArea(importList);
+		tmplTmp = tmplTmp.replace("${import}", importArea);
 
-		String pkg = config.getProperty("package");
-		tmpl = tmpl.replace("${package}", pkg);
-
-		String projectBasePath = Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + Constant.BASEPATH;
+		String pkg = getPoRelativePath();
+		tmplTmp = tmplTmp.replace("${package}", matchPointPath(pkg));
 
 		// 写入文件
-		FileUtil.writeIntoFile(projectBasePath + "\\" + pkg.replace(".", "\\"), TABLE_NAME, "java", tmpl);
+		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + matchLinePath(pkg), CLASS_NAME, "java", tmplTmp);
 	}
 
-	private String importArea() {
+	private Set<String> importList(Table table) {
 
-		String importArea = "";
-		for (String imp : importList) {
-			importArea += imp;
+		Set<String> importList = new HashSet<String>();
+
+		// 固定引入
+		String listImport = "import java.util.List;";
+		// 字段类型引入
+		List<Field> fieldList = table.getFieldList();
+		for (Field field : fieldList) {
+			String DATA_TYPE = field.getDATA_TYPE();
+			DATA_TYPE = matchJAVAType(DATA_TYPE);
+			DATA_TYPE = matchFullJAVAType(DATA_TYPE);
+
+			String dbTypeImport = "import " + DATA_TYPE + ";";
+
+			importList.add(dbTypeImport);
 		}
 
-		return importArea;
+		importList.add(listImport);
+
+		return importList;
 	}
 
 	private String filedArea(List<Field> fieldList) {
 
 		// 字段区域
 		String oneFiledArea = oneFiledArea();
-		String FiledArea = "";
+		String filedArea = "";
 		// 方法区域
 		String oneFiledMethodArea = oneFiledMethodArea();
-		String FiledMethodArea = "";
+		String filedMethodArea = "";
 
+		filedArea += "\r\n";
 		for (Field field : fieldList) {
 			String COLUMN_COMMENT = field.getCOLUMN_COMMENT();
 			String DATA_TYPE = field.getDATA_TYPE();
@@ -95,7 +115,7 @@ public class Tmpl_po {
 			String oneFiledAreaTemp = oneFiledArea;
 			oneFiledAreaTemp = oneFiledAreaTemp.replace("${fieldComment}", COLUMN_COMMENT);
 
-			String fieldType = matchDBType(DATA_TYPE);
+			String fieldType = matchJAVAType(DATA_TYPE);
 			oneFiledAreaTemp = oneFiledAreaTemp.replace("${fieldType}", fieldType);
 			oneFiledAreaTemp = oneFiledAreaTemp.replace("${fieldName}", COLUMN_NAME);
 
@@ -107,13 +127,13 @@ public class Tmpl_po {
 			oneFiledMethodAreaTemp = oneFiledMethodAreaTemp.replace("${fieldMethodName}", methodName);
 			oneFiledMethodAreaTemp = oneFiledMethodAreaTemp.replace("${fieldName}", COLUMN_NAME);
 
-			FiledArea += oneFiledAreaTemp;
-			FiledMethodArea += oneFiledMethodAreaTemp;
+			filedArea += oneFiledAreaTemp;
+			filedMethodArea += oneFiledMethodAreaTemp;
 		}
 		// 总区域
-		String filedArea = FiledArea + "\r\n" + FiledMethodArea;
+		String filedAllArea = filedArea + "\r\n" + filedMethodArea;
 
-		return filedArea;
+		return filedAllArea;
 	}
 
 	private String oneFiledArea() {
@@ -121,7 +141,7 @@ public class Tmpl_po {
 		String oneFiledArea = "";
 
 		String changeLine = "\r\n";
-		String space = "		";
+		String space = "	";
 
 		oneFiledArea += space + "// ${fieldComment}" + changeLine;
 		oneFiledArea += space + "private ${fieldType} ${fieldName};" + changeLine;
@@ -134,7 +154,7 @@ public class Tmpl_po {
 		String oneFiledMethodArea = "";
 
 		String changeLine = "\r\n";
-		String space = "		";
+		String space = "	";
 
 		oneFiledMethodArea += space + "public ${fieldType} get${fieldMethodName}() {" + changeLine;
 		oneFiledMethodArea += space + "	return ${fieldName};" + changeLine;
@@ -151,31 +171,4 @@ public class Tmpl_po {
 		return oneFiledMethodArea;
 	}
 
-	private String matchDBType(String DATA_TYPE) {
-
-		String result = "";
-
-		switch (DATA_TYPE) {
-		case "varchar":
-			result = "String";
-			break;
-		case "int":
-			result = "Integer";
-			break;
-		case "datetime":
-			addImport("java.util.Date");
-			result = "Date";
-			break;
-		}
-
-		return result;
-	}
-
-	private void addImport(String classType) {
-		if (null == importList)
-			importList = new ArrayList<String>();
-
-		String importLine = "import " + classType.trim() + ";\r\n";
-		importList.add(importLine);
-	}
 }

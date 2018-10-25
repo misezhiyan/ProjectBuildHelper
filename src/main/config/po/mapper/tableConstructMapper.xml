@@ -9,19 +9,32 @@
 	</resultMap>
 
 	<!-- 获取表结构 -->
-	<select id="tableConstruct" parameterType="java.lang.String" resultMap="resMap_tableConstruct">
+	<select id="tableConstruct" parameterType="java.util.Map" resultMap="resMap_tableConstruct">
 		SELECT
 		TABLE_NAME,
 		TABLE_COMMENT
 		FROM
 		information_schema.TABLES
 		WHERE
-		TABLE_NAME = UPPER(#{tableName})
-		<!-- AND TABLE_SCHEMA = 'translate' -->
+		TABLE_NAME in (
+		<if test="ALL == 'true'">
+		SELECT
+			TABLE_NAME
+		FROM
+			information_schema. TABLES
+		WHERE
+			TABLE_TYPE = 'BASE TABLE'
+		AND TABLE_SCHEMA = (SELECT DATABASE())
+		</if>
+		<if test="ALL != 'true'">
+		#{tableName}
+		</if>
+		)
+		AND TABLE_SCHEMA = (SELECT DATABASE())
 	</select>
 	<!-- 获取表字段结构 -->
 	<select id="tableFields" parameterType="java.lang.String" resultType="po.Field">
-		SELECT
+	SELECT
 		COLUMN_NAME,
 		DATA_TYPE,
 		CHARACTER_MAXIMUM_LENGTH,
@@ -30,9 +43,16 @@
 		COLUMN_KEY,
 		EXTRA,
 		COLUMN_COMMENT
-		FROM
+	FROM
 		information_schema.`COLUMNS`
-		WHERE
-		TABLE_NAME = UPPER(#{tableName})
+	WHERE
+		TABLE_NAME = #{tableName}
+	AND TABLE_SCHEMA = (SELECT DATABASE())
+	ORDER BY ORDINAL_POSITION
+	</select>
+	
+	<!-- 查看所有表 -->
+	<select id="allTables" resultType="java.lang.String">
+	SHOW TABLES
 	</select>
 </mapper>

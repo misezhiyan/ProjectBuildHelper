@@ -1,5 +1,8 @@
 package dao;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.session.SqlSession;
 
 import frame.SqlSessionFactoryUtil;
@@ -14,9 +17,9 @@ public class ProjectComPonentsDao {
 
 	private SqlSession sqlSession = SqlSessionFactoryUtil.getSqlSession();
 
-	public Table tableConstruct(String tableName) {
+	public List<Table> tableConstruct(Map<String, String> params_tableConstruct) {
 
-		return sqlSession.selectOne("po.mapper.tableConstructMapper.tableConstruct", tableName);
+		return sqlSession.selectList("po.mapper.tableConstructMapper.tableConstruct", params_tableConstruct);
 	}
 
 }

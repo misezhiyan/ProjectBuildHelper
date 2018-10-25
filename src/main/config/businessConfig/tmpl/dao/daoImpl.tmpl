@@ -1,0 +1,34 @@
+package ${package};
+
+${import}
+
+public class ${tableName}DaoImpl implements ${tableName}Dao {
+
+	${baseDao}
+
+
+	@Override
+	public List<String> translateSentense(String sentense) {
+
+		return queryDao.selectList("com.translate.po.mapper.sentenseMapper.translateSentense", sentense);
+	}
+
+	@Override
+	public int isOld(String wordT) {
+
+		return queryDao.selectOne("com.translate.po.mapper.sentenseMapper.isOld", wordT);
+	}
+
+	@Override
+	public int saveTranslateWord(Map<String, String> params_saveTranslateWord) {
+
+		return updateDao.insert("com.translate.po.mapper.sentenseMapper.saveTranslateWord", params_saveTranslateWord);
+	}
+
+	@Override
+	public List<String> translate(String wordT) {
+
+		return queryDao.selectList("com.translate.po.mapper.sentenseMapper.translate", wordT);
+	}
+
+}

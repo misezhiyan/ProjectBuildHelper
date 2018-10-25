@@ -33,11 +33,8 @@ public class Table {
 		this.fieldList = fieldList;
 	}
 
-	/***************************
-	 * 下方业务方法
-	 *************************/
-
 	public String getTABLE_NAME() {
-		return this.TABLE_NAME.substring(0, 1).toUpperCase() + this.TABLE_NAME.substring(1);
+		return TABLE_NAME;
 	}
+
 }

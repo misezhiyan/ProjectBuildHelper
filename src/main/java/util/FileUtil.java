@@ -81,13 +81,6 @@ public class FileUtil {
 		return writeIntoFile(fileRealPath, content);
 	}
 
-	/*
-	 * ***** // �����ʽ���� private static boolean writeIntoFile(String fileRealPath, String content) throws Exception { if (empty(fileRealPath)) throw new Exception("can not be null");
-	 * 
-	 * File file = new File(fileRealPath); if (!file.exists()) { file.createNewFile(); } FileWriter fileWriter = new FileWriter(file); try { fileWriter.write(content); fileWriter.flush(); } catch (Exception e) { e.printStackTrace(); } finally { fileWriter.close(); }
-	 * 
-	 * return true; }
-	 */
 	private static boolean writeIntoFile(String fileRealPath, String content) throws Exception {
 		if (StringUtil.isEmpty(fileRealPath))
 			throw new Exception("can not be null");

@@ -17,7 +17,7 @@ public class Field {
 	private Integer NUMERIC_PRECISION;
 	// 小数位数
 	private Integer NUMERIC_SCALE;
-	// 字段关联键
+	// 字段关联键 主键:PRI
 	private String COLUMN_KEY;
 	// 自动增长
 	private String EXTRA;

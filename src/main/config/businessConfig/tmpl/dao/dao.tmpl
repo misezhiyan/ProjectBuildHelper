@@ -1,0 +1,15 @@
+package ${package};
+
+${import}
+
+public interface ${className}Dao {
+
+	${className} selectBy${keyFieldName}(${keyFieldType} ${keyFieldName});
+
+	List<${className}> selectList(${className} ${tableName});
+
+	int insert(${className} ${tableName});
+
+	int updateBy${keyFieldName}(${className} ${tableName});
+
+}
