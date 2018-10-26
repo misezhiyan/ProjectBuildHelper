@@ -1,4 +1,4 @@
-package frame;
+package frame.tableconstruct.manager;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import constant.Constant;
+import frame.tableconstruct.tableconstructCommon;
 import po.Table;
+import util.PathUtil;
 
 public class CreateManager {
 
@@ -28,27 +29,31 @@ public class CreateManager {
 
 	public CreateManager() throws IOException {
 
+		Properties config = tableconstructCommon.config;
+
 		// po 配置
 		if (null == poConfig) {
-
+			String poConfigFile = config.getProperty("poConfigFile");
+			String poConfigPath = PathUtil.businessConfigPath(tableconstructCommon.BusinessName) + "/" + poConfigFile;
 			poConfig = new Properties();
-			String poConfigPath = Constant.BUSINESSCONFIGREALPATH + "/poConfig.properties";
 			InputStreamReader inStream_po = new InputStreamReader(new FileInputStream(poConfigPath), "UTF-8");
 			poConfig.load(inStream_po);
 		}
 
 		// mapper 配置
 		if (null == mapperConfig) {
+			String mapperConfigFile = config.getProperty("mapperConfigFile");
+			String mapperConfigPath = PathUtil.businessConfigPath(tableconstructCommon.BusinessName) + "/" + mapperConfigFile;
 			mapperConfig = new Properties();
-			String mapperConfigPath = Constant.BUSINESSCONFIGREALPATH + "/mapperConfig.properties";
 			InputStreamReader inStream_mapper = new InputStreamReader(new FileInputStream(mapperConfigPath), "UTF-8");
 			mapperConfig.load(inStream_mapper);
 		}
 
 		// dao 配置
 		if (null == daoConfig) {
+			String daoConfigFile = config.getProperty("daoConfigFile");
+			String daoConfigPath = PathUtil.businessConfigPath(tableconstructCommon.BusinessName) + "/" + daoConfigFile;
 			daoConfig = new Properties();
-			String daoConfigPath = Constant.BUSINESSCONFIGREALPATH + "/daoConfig.properties";
 			InputStreamReader inStream_dao = new InputStreamReader(new FileInputStream(daoConfigPath), "UTF-8");
 			daoConfig.load(inStream_dao);
 		}
@@ -95,11 +100,12 @@ public class CreateManager {
 
 	String getTmplPath(String type) {
 
-		Properties config = matchConfig(type);
-		String tmplpackage = config.getProperty("tmplpackage");
-		String tmplfile = config.getProperty("tmplfile");
+		// 模板配置
+		Properties tmplConfig = matchConfig(type);
+		String tmplpackage = tmplConfig.getProperty("tmplpackage");
+		String tmplfile = tmplConfig.getProperty("tmplfile");
 
-		String tmplPath = matchPath(tmplfile, Constant.BUSINESSCONFIGREALPATH, tmplpackage);
+		String tmplPath = PathUtil.matchPath(tmplfile, PathUtil.businessConfigPath(tableconstructCommon.BusinessName), tmplpackage);
 
 		return tmplPath;
 	}
@@ -109,7 +115,7 @@ public class CreateManager {
 		String tmplimplpackage = config.getProperty("tmplimplpackage");
 		String tmplimplfile = config.getProperty("tmplimplfile");
 
-		String tmplImplPath = matchPath(tmplimplfile, Constant.BUSINESSCONFIGREALPATH, tmplimplpackage);
+		String tmplImplPath = PathUtil.matchPath(tmplimplfile, PathUtil.businessConfigPath(tableconstructCommon.BusinessName), tmplimplpackage);
 		return tmplImplPath;
 	}
 
@@ -124,55 +130,6 @@ public class CreateManager {
 			return daoConfig;
 		}
 		return null;
-	}
-
-	// 拼接路径
-	String matchPath(String fileName, String... pathArr) {
-
-		String path = "";
-		for (String path_tmp : pathArr) {
-			if (!path.endsWith("/"))
-				path = path + "/";
-			path += path_tmp;
-		}
-
-		path = matchLinePath(path);
-
-		path += "/" + fileName;
-
-		return path;
-	}
-
-	// 无头无尾反斜杠路径
-	String matchLinePath(String path) {
-
-		path = path.replace(".", "/");
-		path = path.replace("\\", "/");
-
-		while (path.startsWith("/"))
-			path = path.substring(1);
-		while (path.endsWith("/"))
-			path = path.substring(0, path.length() - 1);
-		while (path.contains("//"))
-			path = path.replace("//", "/");
-
-		return path;
-	}
-
-	// 无头无尾点路径
-	String matchPointPath(String path) {
-
-		path = path.replace("\\", "/");
-		while (path.startsWith("/"))
-			path = path.substring(1);
-		while (path.endsWith("/"))
-			path = path.substring(0, path.length() - 1);
-		while (path.contains("//"))
-			path = path.replace("//", "/");
-
-		path = path.replace("/", ".");
-
-		return path;
 	}
 
 	// 重置表
@@ -212,8 +169,10 @@ public class CreateManager {
 	// 工程相对路径
 	protected String matchProjectRelativePath(String pkg) {
 
-		String path = Constant.BASEPATH + "/" + pkg;
-		path = matchLinePath(path);
+		Properties config = tableconstructCommon.config;
+		String BASEPATH = config.getProperty("BASEPATH");
+
+		String path = PathUtil.matchLinePath(BASEPATH + "/" + pkg);
 		return path;
 	}
 
@@ -253,6 +212,25 @@ public class CreateManager {
 		return fullJavaType;
 	}
 
+	// 转换mapper类型
+	protected String matchMapperType(String DATA_TYPE) {
+
+		String result = "";
+		switch (DATA_TYPE) {
+		case "varchar":
+			result = "VARCHAR";
+			break;
+		case "int":
+			result = "INTEGER";
+			break;
+		case "datetime":
+			result = "TIMESTAMP";
+			break;
+		}
+
+		return result;
+	}
+
 	String formmatImportArea(Set<String> set) {
 
 		List<String> importList = new ArrayList<String>(set);
@@ -282,4 +260,13 @@ public class CreateManager {
 		return importArea;
 	}
 
+	String getOutFilePath(String pkg) {
+
+		Properties config = tableconstructCommon.config;
+		String RESULTFILEPATH = config.getProperty("RESULTFILEPATH");
+		String PROJECTNAME = config.getProperty("PROJECTNAME");
+		String outFilePath = PathUtil.matchLinePath(RESULTFILEPATH + "\\" + PROJECTNAME + "\\" + pkg);
+
+		return outFilePath;
+	}
 }

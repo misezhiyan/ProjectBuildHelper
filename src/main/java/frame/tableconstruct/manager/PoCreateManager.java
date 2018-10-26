@@ -1,4 +1,4 @@
-package frame;
+package frame.tableconstruct.manager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -6,10 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import constant.Constant;
 import po.Field;
 import po.Table;
 import util.FileUtil;
+import util.PathUtil;
 
 /**
  * @discription po 模板配置
@@ -67,10 +67,11 @@ public class PoCreateManager extends CreateManager {
 		tmplTmp = tmplTmp.replace("${import}", importArea);
 
 		String pkg = getPoRelativePath();
-		tmplTmp = tmplTmp.replace("${package}", matchPointPath(pkg));
+		tmplTmp = tmplTmp.replace("${package}", PathUtil.matchPointPath(pkg));
 
 		// 写入文件
-		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + matchLinePath(pkg), CLASS_NAME, "java", tmplTmp);
+		String outFilePath = getOutFilePath(pkg);
+		FileUtil.writeIntoFile(outFilePath, CLASS_NAME, "java", tmplTmp);
 	}
 
 	private Set<String> importList(Table table) {

@@ -1,13 +1,15 @@
-package frame;
+package frame.tableconstruct.manager;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
-import constant.Constant;
+import frame.tableconstruct.tableconstructCommon;
 import po.Field;
 import po.Table;
 import util.FileUtil;
+import util.PathUtil;
 
 /**
  * @discription dao 模板配置
@@ -56,7 +58,7 @@ public class DaoCreateManager extends CreateManager {
 		tmplTmp = tmplTmp.replace("${className}", CLASS_NAME);
 
 		String pkg = getDaoRelativePath();
-		tmplTmp = tmplTmp.replace("${package}", matchPointPath(pkg));
+		tmplTmp = tmplTmp.replace("${package}", PathUtil.matchPointPath(pkg));
 
 		Set<String> importList = daoImportList(table);
 		String importArea = formmatImportArea(importList);
@@ -71,7 +73,8 @@ public class DaoCreateManager extends CreateManager {
 		tmplTmp = tmplTmp.replace("${keyFieldType}", keyFieldType);
 
 		// 写入文件
-		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, CLASS_NAME + "Dao", "java", tmplTmp);
+		String outFilePath = getOutFilePath(pkg);
+		FileUtil.writeIntoFile(outFilePath, CLASS_NAME + "Dao", "java", tmplTmp);
 	}
 
 	public void createImplFile() throws Exception {
@@ -83,10 +86,10 @@ public class DaoCreateManager extends CreateManager {
 		tmplImplTmp = tmplImplTmp.replace("${className}", CLASS_NAME);
 
 		String pkg = getDaoImplRelativePath();
-		tmplImplTmp = tmplImplTmp.replace("${package}", matchPointPath(pkg));
+		tmplImplTmp = tmplImplTmp.replace("${package}", PathUtil.matchPointPath(pkg));
 
 		String mapperpackage = getMapperRelativePath();
-		tmplImplTmp = tmplImplTmp.replace("${mapperpackage}", matchPointPath(mapperpackage));
+		tmplImplTmp = tmplImplTmp.replace("${mapperpackage}", PathUtil.matchPointPath(mapperpackage));
 
 		Set<String> importList = daoImplImportList(table);
 		String importArea = formmatImportArea(importList);
@@ -101,7 +104,8 @@ public class DaoCreateManager extends CreateManager {
 		tmplImplTmp = tmplImplTmp.replace("${keyFieldType}", keyFieldType);
 
 		// 写入文件
-		FileUtil.writeIntoFile(Constant.RESULTFILEPATH + "\\" + Constant.PROJECTNAME + "\\" + pkg, CLASS_NAME + "DaoImpl", "java", tmplImplTmp);
+		String outFilePath = getOutFilePath(pkg);
+		FileUtil.writeIntoFile(outFilePath, CLASS_NAME + "DaoImpl", "java", tmplImplTmp);
 
 	}
 
@@ -128,14 +132,17 @@ public class DaoCreateManager extends CreateManager {
 	private Set<String> daoImplImportList(Table table) {
 		Set<String> importList = importList(table);
 
+		Properties config = tableconstructCommon.config;
+		String BASEPATH = config.getProperty("BASEPATH");
+
 		// 固定引入
 		String listImport = "import java.util.List;";
 		importList.add(listImport);
-		String daoImport = "import " + matchPointPath(Constant.BASEPATH + "." + daoConfig.getProperty("package")) + "." + getCLASS_NAME() + "Dao;";
+		String daoImport = "import " + PathUtil.matchPointPath(BASEPATH + "." + daoConfig.getProperty("package")) + "." + getCLASS_NAME() + "Dao;";
 		importList.add(daoImport);
-		String queryDaoImport = "import " + matchPointPath(Constant.BASEPATH + "." + daoConfig.getProperty("basedaopackage")) + "." + "QueryDao;";
+		String queryDaoImport = "import " + PathUtil.matchPointPath(BASEPATH + "." + daoConfig.getProperty("basedaopackage")) + "." + "QueryDao;";
 		importList.add(queryDaoImport);
-		String updateDaoImport = "import " + matchPointPath(Constant.BASEPATH + "." + daoConfig.getProperty("basedaopackage")) + "." + "UpdateDao;";
+		String updateDaoImport = "import " + PathUtil.matchPointPath(BASEPATH + "." + daoConfig.getProperty("basedaopackage")) + "." + "UpdateDao;";
 		importList.add(updateDaoImport);
 
 		return importList;
@@ -148,7 +155,7 @@ public class DaoCreateManager extends CreateManager {
 		// 表类引入
 		// String TABLE_NAME = table.getTABLE_NAME();
 		String poPath = getPoRelativePath();
-		String tableImport = "import " + matchPointPath(poPath) + "." + getCLASS_NAME() + ";";
+		String tableImport = "import " + PathUtil.matchPointPath(poPath) + "." + getCLASS_NAME() + ";";
 
 		importList.add(tableImport);
 
