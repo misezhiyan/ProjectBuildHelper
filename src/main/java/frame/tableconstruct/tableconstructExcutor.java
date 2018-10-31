@@ -11,6 +11,7 @@ import frame.excutor.Excutor;
 import frame.tableconstruct.manager.DaoCreateManager;
 import frame.tableconstruct.manager.MapperCreateManager;
 import frame.tableconstruct.manager.PoCreateManager;
+import frame.tableconstruct.manager.ResCreateManager;
 import po.Table;
 import service.ProjectComPonentsService;
 import util.PathUtil;
@@ -26,6 +27,7 @@ public class tableconstructExcutor extends Excutor {
 	private static PoCreateManager poManager;
 	private static MapperCreateManager mapperManager;
 	private static DaoCreateManager daoManager;
+	private static ResCreateManager resManager;
 
 	private static ProjectComPonentsService projectComPonentsService = new ProjectComPonentsService();
 
@@ -98,24 +100,29 @@ public class tableconstructExcutor extends Excutor {
 		poManager = new PoCreateManager();
 		mapperManager = new MapperCreateManager();
 		daoManager = new DaoCreateManager();
+		resManager = new ResCreateManager();
 
 	}
 
 	// 读取配置文件 , 创建目标文件
 	private static void createFiles(Table table) throws Exception {
+		//
+		// // 创建 po
+		// poManager.matchTable(table);
+		// poManager.createFile();
+		//
+		// // 创建 mapper
+		// mapperManager.matchTable(table);
+		// mapperManager.createFile();
+		//
+		// // 创建 dao
+		// daoManager.matchTable(table);
+		// daoManager.createFile();
+		// daoManager.createImplFile();
 
-		// 创建 po
-		poManager.matchTable(table);
-		poManager.createFile();
-
-		// 创建 mapper
-		mapperManager.matchTable(table);
-		mapperManager.createFile();
-
-		// 创建 dao
-		daoManager.matchTable(table);
-		daoManager.createFile();
-		daoManager.createImplFile();
+		// 剩余配置项
+		resManager.matchTable(table);
+		resManager.createFile();
 
 	}
 }

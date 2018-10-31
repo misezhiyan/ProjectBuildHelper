@@ -24,6 +24,8 @@ public class CreateManager {
 	static Properties mapperConfig;
 	// dao配置
 	static Properties daoConfig;
+	// dao配置
+	static Properties resConfig;
 
 	// String projectBasePath = Constant.BUSINESSCONFIGREALPATH;
 
@@ -56,6 +58,15 @@ public class CreateManager {
 			daoConfig = new Properties();
 			InputStreamReader inStream_dao = new InputStreamReader(new FileInputStream(daoConfigPath), "UTF-8");
 			daoConfig.load(inStream_dao);
+		}
+
+		// res 配置
+		if (null == resConfig) {
+			String resConfigFile = config.getProperty("resConfigFile");
+			String resConfigPath = PathUtil.businessConfigPath(tableconstructCommon.BusinessName) + "/" + resConfigFile;
+			resConfig = new Properties();
+			InputStreamReader inStream_dao = new InputStreamReader(new FileInputStream(resConfigPath), "UTF-8");
+			resConfig.load(inStream_dao);
 		}
 
 	}
@@ -98,6 +109,12 @@ public class CreateManager {
 		return getTmplImplPath("DAO");
 	}
 
+	// daoImpl 模板路径
+	String getResTmplPath() {
+
+		return getTmplPath("RES");
+	}
+
 	String getTmplPath(String type) {
 
 		// 模板配置
@@ -128,6 +145,8 @@ public class CreateManager {
 			return mapperConfig;
 		case "DAO":
 			return daoConfig;
+		case "RES":
+			return resConfig;
 		}
 		return null;
 	}
@@ -163,6 +182,13 @@ public class CreateManager {
 	String getDaoImplRelativePath() {
 
 		String pkg = daoConfig.getProperty("implpackage");
+		return matchProjectRelativePath(pkg);
+	}
+
+	// 获取剩余配置路径
+	String getResRelativePath() {
+
+		String pkg = resConfig.getProperty("package");
 		return matchProjectRelativePath(pkg);
 	}
 

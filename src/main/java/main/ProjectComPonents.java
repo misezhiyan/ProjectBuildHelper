@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
+import frame.session.SessionConfig;
 import frame.tableconstruct.tableconstructCommon;
 import frame.tableconstruct.tableconstructExcutor;
 import util.PathUtil;
@@ -71,6 +72,8 @@ public class ProjectComPonents {
 		businessConfig = new Properties();
 		String businessConfigPath = PathUtil.LOCAL_PATH + "/businessConfig.properties";
 		businessConfig.load(new InputStreamReader(new FileInputStream(businessConfigPath), "UTF-8"));
+		// 通用设置
+		SessionConfig.FILE_ENCODE_IN = businessConfig.getProperty("fileInCode");
 
 		// // 文件输出配置
 		// String pathConfig = Constant.CONFIGREALPATH + "/pathConfig.properties";

@@ -110,7 +110,7 @@ public class MapperCreateManager extends CreateManager {
 		selectByKeyArea += fieldArea;
 		selectByKeyArea += changeLine;
 		selectByKeyArea += space + "WHERE " + keyFieldName + " = #{" + keyFieldName + "}" + changeLine;
-		selectByKeyArea += space + "</insert>" + changeLine;
+		selectByKeyArea += space + "</select>" + changeLine;
 
 		return selectByKeyArea;
 	}

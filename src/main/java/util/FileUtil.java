@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
+import frame.session.SessionConfig;
+
 public class FileUtil {
 
 	public static void writeIntoFileWithDir(String fileRealPath, String content) throws Exception {
@@ -49,7 +51,11 @@ public class FileUtil {
 			in.close();
 		}
 
-		String encoding = EncodingUtil.getFileEncodingType(fileRealPath);
+		String encoding = SessionConfig.FILE_ENCODE_IN;
+		if (StringUtil.isEmpty(encoding)) {
+
+			encoding = EncodingUtil.getFileEncodingType(fileRealPath);
+		}
 
 		String result = new String(filecontent, encoding);
 		return result;
