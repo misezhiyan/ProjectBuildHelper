@@ -44,7 +44,7 @@ public class ResCreateManager extends CreateManager {
 
 		String mapperPkg = getMapperRelativePath();
 
-		String mapperImport = "<mapper resource=\"" + PathUtil.matchLinePath(mapperPkg) + "." + table.getTABLE_NAME() + "Mapper.xml\" />";
+		String mapperImport = "<mapper resource=\"" + PathUtil.matchLinePath(mapperPkg) + "/" + table.getTABLE_NAME() + "Mapper.xml\" />";
 		tmplTmp = tmplTmp.replace("${mapperImport}", mapperImport);
 		String daoBean = getDaoBean();
 		tmplTmp = tmplTmp.replace("${daoBean}", daoBean);
