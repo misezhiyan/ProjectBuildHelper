@@ -37,7 +37,7 @@
 	<!-- 映射器 -->
 	<mappers>
 		<!-- 注册映射文件 -->
-		<mapper resource="po/mapper/tableConstructMapper.xml" />
+		<mapper resource="po/mapper/tableMapper.xml" />
 	</mappers>
 
 </configuration>

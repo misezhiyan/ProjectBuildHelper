@@ -19,7 +19,22 @@ public class ProjectComPonentsDao {
 
 	public List<Table> tableConstruct(Map<String, String> params_tableConstruct) {
 
-		return sqlSession.selectList("po.mapper.tableConstructMapper.tableConstruct", params_tableConstruct);
+		return sqlSession.selectList("po.mapper.tableMapper.tableConstruct", params_tableConstruct);
+	}
+
+	public List<String> allTables() {
+
+		return sqlSession.selectList("po.mapper.tableMapper.allTables");
+	}
+
+	public Map<String, String> createSql(String table) {
+
+		return sqlSession.selectOne("po.mapper.tableMapper.createSql", table);
+	}
+
+	public int createOneTable(String createSql) {
+
+		return sqlSession.insert("po.mapper.tableMapper.createOneTable", createSql);
 	}
 
 }

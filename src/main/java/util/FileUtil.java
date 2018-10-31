@@ -36,6 +36,10 @@ public class FileUtil {
 	public static String fileReadToString(String fileRealPath) throws Exception {
 
 		File file = new File(fileRealPath);
+		return fileReadToString(file);
+	}
+
+	public static String fileReadToString(File file) throws Exception {
 		if (!file.exists())
 			throw new Exception("文件不存在");
 
@@ -53,7 +57,7 @@ public class FileUtil {
 
 		String encoding = SessionConfig.FILE_ENCODE_IN;
 		if (StringUtil.isEmpty(encoding)) {
-
+			String fileRealPath = file.getAbsolutePath();
 			encoding = EncodingUtil.getFileEncodingType(fileRealPath);
 		}
 

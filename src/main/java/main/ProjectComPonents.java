@@ -8,6 +8,10 @@ import java.util.Properties;
 import frame.session.SessionConfig;
 import frame.tableconstruct.tableconstructCommon;
 import frame.tableconstruct.tableconstructExcutor;
+import frame.tablecreate.tablecreateCommon;
+import frame.tablecreate.tablecreateExcutor;
+import frame.tablecreatesql.tablecreatesqlCommon;
+import frame.tablecreatesql.tablecreatesqlExcutor;
 import util.PathUtil;
 
 /**
@@ -27,23 +31,30 @@ public class ProjectComPonents {
 
 		// 1.创建 java 结构
 		String tableconstruct = businessConfig.getProperty("tableconstruct");
-
 		if ("true".equals(tableconstruct)) {
 			tableconstructCommon.BusinessName = "tableconstruct";
 			tableconstructExcutor.createJAVAFiles();
 		}
 
 		// 2.保存表创建 sql
-		// String tablecreatesql = businessConfig.getProperty("tablecreatesql");
-		// if (tablecreatesql == "true")
-		// createTABLESql();
+		String tablecreatesql = businessConfig.getProperty("tablecreatesql");
+		if ("true".equals(tablecreatesql)) {
+			tablecreatesqlCommon.BusinessName = "tablecreatesql";
+			tablecreatesqlExcutor.createTABLESqlCreateFile();
+		}
+
+		// 3.表创建
+		String tablecreate = businessConfig.getProperty("tablecreate");
+		if ("true".equals(tablecreate)) {
+			tablecreateCommon.BusinessName = "tablecreate";
+			tablecreateExcutor.createTable();
+		}
 
 	}
 
-	// private static void createTABLESql() {
-	// List<String> createSqlList = projectComPonentsService.createSqlList(params_tableConstruct);
-	//
-	// }
+	private static void createTABLESql() throws IOException {
+
+	}
 
 	private static void init() throws Exception {
 

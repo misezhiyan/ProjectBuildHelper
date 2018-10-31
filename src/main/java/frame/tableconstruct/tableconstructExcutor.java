@@ -13,7 +13,6 @@ import frame.tableconstruct.manager.MapperCreateManager;
 import frame.tableconstruct.manager.PoCreateManager;
 import frame.tableconstruct.manager.ResCreateManager;
 import po.Table;
-import service.ProjectComPonentsService;
 import util.PathUtil;
 
 /**
@@ -28,8 +27,6 @@ public class tableconstructExcutor extends Excutor {
 	private static MapperCreateManager mapperManager;
 	private static DaoCreateManager daoManager;
 	private static ResCreateManager resManager;
-
-	private static ProjectComPonentsService projectComPonentsService = new ProjectComPonentsService();
 
 	public static void createJAVAFiles() throws Exception {
 
@@ -46,7 +43,7 @@ public class tableconstructExcutor extends Excutor {
 		else if ("MUL".equals(TABLENEEDDEAL)) {
 			String TABLENAMELIST = config.getProperty("TABLENAMELIST");
 			TABLENAMELIST = conbineTableParam(TABLENAMELIST);
-			params_tableConstruct.put("tableName", "initialfrom");
+			params_tableConstruct.put("tableName", TABLENAMELIST);
 		} else {
 			return;
 		}
@@ -63,7 +60,6 @@ public class tableconstructExcutor extends Excutor {
 		String[] TABLENAME_ARR = TABLENAMELIST.split(",");
 
 		return surroundSingleQuotation(TABLENAME_ARR);
-
 	}
 
 	private static String surroundSingleQuotation(String[] TABLENAME_ARR) {
@@ -106,19 +102,19 @@ public class tableconstructExcutor extends Excutor {
 
 	// 读取配置文件 , 创建目标文件
 	private static void createFiles(Table table) throws Exception {
-		//
-		// // 创建 po
-		// poManager.matchTable(table);
-		// poManager.createFile();
-		//
-		// // 创建 mapper
-		// mapperManager.matchTable(table);
-		// mapperManager.createFile();
-		//
-		// // 创建 dao
-		// daoManager.matchTable(table);
-		// daoManager.createFile();
-		// daoManager.createImplFile();
+
+		// 创建 po
+		poManager.matchTable(table);
+		poManager.createFile();
+
+		// 创建 mapper
+		mapperManager.matchTable(table);
+		mapperManager.createFile();
+
+		// 创建 dao
+		daoManager.matchTable(table);
+		daoManager.createFile();
+		daoManager.createImplFile();
 
 		// 剩余配置项
 		resManager.matchTable(table);

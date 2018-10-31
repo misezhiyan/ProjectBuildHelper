@@ -1,5 +1,7 @@
 package frame.excutor;
 
+import service.ProjectComPonentsService;
+
 /**
  * @discription
  * @author kimmy
@@ -7,4 +9,5 @@ package frame.excutor;
  */
 public class Excutor {
 
+	protected static ProjectComPonentsService projectComPonentsService = new ProjectComPonentsService();
 }
