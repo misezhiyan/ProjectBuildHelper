@@ -5,7 +5,7 @@
 	<resultMap id="resMap_tableConstruct" type="po.Table">
 		<result property="TABLE_NAME" column="TABLE_NAME" />
 		<result property="TABLE_COMMENT" column="TABLE_COMMENT" />
-		<association property="fieldList" column="TABLE_NAME" select="po.mapper.tableConstructMapper.tableFields" />
+		<association property="fieldList" column="TABLE_NAME" select="po.mapper.tableMapper.tableFields" />
 	</resultMap>
 
 	<!-- 获取表结构 -->

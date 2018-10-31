@@ -46,6 +46,8 @@ public class ResCreateManager extends CreateManager {
 
 		String mapperImport = "<mapper resource=\"" + PathUtil.matchLinePath(mapperPkg) + "." + table.getTABLE_NAME() + "Mapper.xml\" />";
 		tmplTmp = tmplTmp.replace("${mapperImport}", mapperImport);
+		String daoBean = getDaoBean();
+		tmplTmp = tmplTmp.replace("${daoBean}", daoBean);
 
 		// 写入文件
 		// String CLASS_NAME = getCLASS_NAME();
@@ -63,6 +65,25 @@ public class ResCreateManager extends CreateManager {
 		FileUtil.writeIntoFileWithDir(outFile, resArea);
 	}
 
+	private String getDaoBean() {
+
+		String changLine = "\r\n";
+		String space = "\t";
+
+		String CLASS_NAME = getCLASS_NAME();
+		String daoImplPkg = getDaoImplRelativePath();
+		String daoBean = "";
+		daoBean += "<bean id=\"" + CLASS_NAME.substring(0, 1).toLowerCase() + CLASS_NAME.substring(1) + "Dao\" class=\"" + PathUtil.matchPointPath(daoImplPkg) + "." + CLASS_NAME + "DaoImpl\">";
+		daoBean += changLine;
+		daoBean += space + space + "<property name=\"queryDao\" ref=\"queryDao\" />";
+		daoBean += changLine;
+		daoBean += space + space + "<property name=\"updateDao\" ref=\"updateDao\" />";
+		daoBean += changLine;
+		daoBean += space + "</bean>";
+
+		return daoBean;
+	}
+
 	private String resArea(String oldContent, String newContent) throws Exception {
 
 		String tagListStr = resConfig.getProperty("tagList");
@@ -73,6 +94,10 @@ public class ResCreateManager extends CreateManager {
 
 		String result = "";
 		for (String tagName : tagArr) {
+
+			result += "<" + tagName + ">";
+			result += "\r\n";
+
 			String oldArea = oldAreaMap.get(tagName);
 			if (!StringUtil.isEmpty(oldArea)) {
 
@@ -85,8 +110,8 @@ public class ResCreateManager extends CreateManager {
 				result += "\r\n";
 			}
 
-			result = "<" + tagName + ">" + "\r\n" + result;
 			result += "</" + tagName + ">";
+			result += "\r\n";
 			result += "\r\n";
 		}
 
